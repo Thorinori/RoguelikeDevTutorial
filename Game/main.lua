@@ -44,6 +44,7 @@ function love.load()
     if(debug) then
         debug_globals = {}
         debug_globals.current_dt = 0
+        debug_globals.show_debug = true
     end
 end
 
@@ -62,20 +63,24 @@ function love.update(dt)
         --Debug Updates
         if(debug) then
             debug_globals.current_dt = dt
+            debug_globals.current_mem_usage = collectgarbage('count')
         end
     end
 end
 
 function love.draw()
     if(debug) then
-        local debug_string = 'X: '..globals.perm_objects.Player.x_offset..
-        '\nY: '..globals.perm_objects.Player.y_offset..
-        '\ndT: '..debug_globals.current_dt..
-        '\nObjects Made: '..globals.next_id..
-        '\nCurrent Objects: '..globals.object_count
+        if(debug_globals.show_debug) then
+        local debug_string = 'Position: (X: '..string.format('%.4f',globals.perm_objects.Player.x_offset * globals.win_width)..
+            ' Y: '.. string.format('%.4f',globals.perm_objects.Player.y_offset * globals.win_height)..')'..
+            '\ndT: '..string.format('%.4f',debug_globals.current_dt)..
+            '\nFPS: '..string.format('%.0f', love.timer.getFPS())..
+            '\nObjects Made: '..globals.next_id..
+            '\nCurrent Objects: '..globals.object_count..
+            '\nCurrent Memory Usage: ' .. string.format('%.2f', math.floor(debug_globals.current_mem_usage/1024)) .. 'MB, '.. string.format('%.2f',debug_globals.current_mem_usage%1024) ..' KB'
 
-
-        love.graphics.print(debug_string,10,10)
+            love.graphics.print(debug_string,10,10)
+        end
     end
 
     for k,i in pairs(globals.perm_objects) do

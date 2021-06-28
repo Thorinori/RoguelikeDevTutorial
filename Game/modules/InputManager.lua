@@ -70,6 +70,15 @@ function love.keypressed(key, unicode)
             globals.game_state = 'play'
         end
     end
+    if(debug) then
+        if key == '\\' then
+            if(debug_globals.show_debug == true) then
+                debug_globals.show_debug = false
+            else
+                debug_globals.show_debug = true
+            end
+        end
+    end
 end
 
 function love.keyreleased(key, unicode)

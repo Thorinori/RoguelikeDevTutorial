@@ -36,23 +36,24 @@ function checkInput(this,dt)
     end
 
     if mouse_down('1') then
+        local x_pos, y_pos = love.mouse.getPosition()
         if(globals.fire_timer) then
             if (globals.fire_timer > 0) then
                 globals.fire_timer = globals.fire_timer - dt
             else
-                fire()
+                fire(x_pos, y_pos)
                 globals.fire_timer = 1/globals.fire_rate
             end
         else
-            fire()
+            fire(x_pos, y_pos)
             globals.fire_timer = 1/globals.fire_rate
         end
     end
 end
 
 --Testing function
-function fire()
-    globals.temp_objects.pushright(globals.temp_objects,CreateProj('x',globals.perm_objects.Player.x_offset,globals.perm_objects.Player.y_offset,globals.next_id,.3))
+function fire(x, y)
+    globals.temp_objects.pushright(globals.temp_objects,CreateProj('x',globals.perm_objects.Player.x_offset,globals.perm_objects.Player.y_offset,globals.next_id,.3,x,y))
     globals.next_id = globals.next_id + 1
     globals.object_count = globals.object_count + 1
 end

@@ -64,6 +64,7 @@ function love.update(dt)
         if(debug) then
             debug_globals.current_dt = dt
             debug_globals.current_mem_usage = collectgarbage('count')
+            debug_globals.mouse_x_pos, debug_globals.mouse_y_pos = love.mouse.getPosition()
         end
     end
 end
@@ -73,6 +74,7 @@ function love.draw()
         if(debug_globals.show_debug) then
         local debug_string = 'Position: (X: '..string.format('%.4f',globals.perm_objects.Player.x_offset * globals.win_width)..
             ' Y: '.. string.format('%.4f',globals.perm_objects.Player.y_offset * globals.win_height)..')'..
+            '\nMouse Position: (X: '..string.format('%.4f',debug_globals.mouse_x_pos)..' Y: '.. string.format('%.4f',debug_globals.mouse_y_pos)..')'..
             '\ndT: '..string.format('%.4f',debug_globals.current_dt)..
             '\nFPS: '..string.format('%.0f', love.timer.getFPS())..
             '\nObjects Made: '..globals.next_id..

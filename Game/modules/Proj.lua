@@ -10,18 +10,24 @@ function CreateProj(name, x, y,id, speed, dest_x, dest_y)
     proj.angle = math.atan2((proj.dest_y - proj.y_offset), (proj.dest_x - proj.x_offset)) --Firing Angle for where projectiles go
 
     proj.update  = function (this, dt)
+        --Update Projectile location
         this.x_offset = this.x_offset + (this.speed * math.cos(this.angle) * dt)
         this.y_offset = this.y_offset + (this.speed * math.sin(this.angle) * dt)
 
-        if(this.x_offset*globals.win_width > globals.win_width + globals.max_offset) or (this.x_offset*globals.win_width < globals.min_offset) then
-            globals.temp_objects.popleft(globals.temp_objects)
-            globals.object_count = globals.object_count - 1
+        --Cull Projectiles for both dimensions if they pass the screen borders
+        if(this.x_offset*globals.win_width >= globals.win_width + globals.max_offset) or (this.x_offset*globals.win_width <= globals.min_offset) then
+            if((globals.perm_objects.Player.x_offset >= 0) and (globals.perm_objects.Player.x_offset <= 1)) then
+                globals.temp_objects.popleft(globals.temp_objects)
+                globals.object_count = globals.object_count - 1
+            end
 
         end
 
-        if(this.y_offset*globals.win_height > globals.win_height + globals.max_offset) or (this.y_offset*globals.win_height < globals.min_offset) then
-            globals.temp_objects.popleft(globals.temp_objects)
-            globals.object_count = globals.object_count - 1
+        if(this.y_offset*globals.win_height >= globals.win_height + globals.max_offset) or (this.y_offset*globals.win_height <= globals.min_offset) then
+            if((globals.perm_objects.Player.y_offset >= 0) and (globals.perm_objects.Player.y_offset  <= 1)) then
+                globals.temp_objects.popleft(globals.temp_objects)
+                globals.object_count = globals.object_count - 1
+            end
         end
     end
 

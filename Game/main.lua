@@ -29,14 +29,14 @@ function love.load()
     love.window.setMode(800,600,{resizable = true, minwidth = 800, minheight = 600})
 
     --Values for positioning to keep everything scaled and in visible bounds
-    globals.max_offset = 1.01
-    globals.min_offset = -.05
+    globals.max_offset = 1
+    globals.min_offset = 0
 
     --Stores Current Window Dimensions
     globals.win_width = love.graphics.getWidth()
     globals.win_height = love.graphics.getHeight()
     
-    globals.perm_objects.Player = CreatePlayer("Quack", love.math.random(), love.math.random(), 1)
+    globals.perm_objects.Player = CreatePlayer("@", love.math.random(), love.math.random(), 1)
     globals.next_id = 1
     
     --Debug variables
@@ -79,7 +79,8 @@ function love.draw()
             '\nFPS: '..string.format('%.0f', love.timer.getFPS())..
             '\nObjects Made: '..globals.next_id..
             '\nCurrent Objects: '..globals.object_count..
-            '\nCurrent Memory Usage: ' .. string.format('%.2f', math.floor(debug_globals.current_mem_usage/1024)) .. 'MB, '.. string.format('%.2f',debug_globals.current_mem_usage%1024) ..' KB'
+            '\nCurrent Memory Usage: ' .. string.format('%.2f', math.floor(debug_globals.current_mem_usage/1024)) .. 'MB, '.. string.format('%.2f',debug_globals.current_mem_usage%1024) ..' KB'..
+            '\nText Width: ' .. globals.perm_objects.Player.border_offset_width
 
             love.graphics.print(debug_string,10,10)
         end

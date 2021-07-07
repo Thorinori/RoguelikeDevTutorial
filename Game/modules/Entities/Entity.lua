@@ -9,5 +9,12 @@ function CreateEntity(name,x,y,id)
 
     entity.border_offset_width = entity.text:getWidth()/globals.win_width
     entity.border_offset_height = entity.text:getHeight()/globals.win_height
+
+    entity.update_offsets = function(this)
+        entity.border_offset_width = entity.text:getWidth()/globals.win_width
+        entity.border_offset_height = entity.text:getHeight()/globals.win_height
+    end
+
+
     return entity
 end

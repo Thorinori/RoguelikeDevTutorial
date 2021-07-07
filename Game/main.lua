@@ -1,8 +1,8 @@
 --Includes
-require('modules.Player')
-require('modules.TableFunctions')
-require('modules.Proj')
-require('modules.DataStructures')
+require('libs.json')
+require('modules.General.DataStructures')
+require('modules.General.TableFunctions')
+require('modules.Entities.Player')
 
 --LOVE Functions
 function love.load()
@@ -27,13 +27,13 @@ function love.load()
         },
         perm_objects = {},
         temp_objects = {
-            bullets = {}
+            bullets = {},
+            enemies = {}
         },
         next_id = 2,
-        object_count = 1,
     }
 
-    globals.perm_objects.Player = CreatePlayer('nerd', love.math.random(), love.math.random(), 1)
+    globals.perm_objects.Player = CreatePlayer('@', love.math.random(), love.math.random(), 1)
 
     --Debug variables
     debug = true --Preferably only global not in a table
@@ -41,22 +41,31 @@ function love.load()
         debug_globals = {
             current_dt = 0,
             show_debug = true,
+            current_object_count = 1
         }
     end
 end
 
 function love.update(dt)
+    --Only update when window is focused and game is in play mode
     if(love.window.hasFocus() and globals.game_state ~= 'paused') then
-        for k,i in pairs(globals.perm_objects) do
+
+        --Do updates for all permanent objects
+        for _,i in pairs(globals.perm_objects) do
             i.update(i,dt)
         end
 
-        --Iterates over Queue, if statement causes only operating on the contained objects instead of the functions too
-        for k,i in pairs(globals.temp_objects.bullets) do
-            if type(k) =="number" then
-                i.update(i,dt)
+        --Iterates through all categories of temporary objects, then iterates over non-function members of those categories
+        for _,v in pairs(globals.temp_objects) do
+            if(type(v) == "table") then
+                for k,i in pairs(v) do
+                    if type(k) =="number" then
+                        i.update(i,dt)
+                    end
+                end
             end
         end
+
         --Debug Updates
         if(debug) then
             debug_globals.current_dt = dt
@@ -76,19 +85,22 @@ function love.draw()
             '\ndT: '..string.format('%.4f',debug_globals.current_dt)..
             '\nFPS: '..string.format('%.0f', love.timer.getFPS())..
             '\nObjects Made: '..globals.next_id..
-            '\nCurrent Objects: '..globals.object_count..
+            '\nCurrent Objects: '..debug_globals.current_object_count..
             '\nCurrent Memory Usage: ' .. string.format('%.2f', math.floor(debug_globals.current_mem_usage/1024)) .. 'MB, '.. string.format('%.2f',debug_globals.current_mem_usage%1024) ..' KB'..
-            '\nText Width: ' .. globals.perm_objects.Player.border_offset_width
+            '\nText Width: ' .. globals.perm_objects.Player.border_offset_width..
+            '\nText Height: ' .. globals.perm_objects.Player.border_offset_height..
+            '\nFire Rate: '..globals.fire_rate..' shots/sec'..
+            '\nFire Timer: '.. string.format('%.4f',globals.fire_timer or 0) ..' seconds'
 
             love.graphics.print(debug_string,10,10)
         end
     end
 
-    for k,i in pairs(globals.perm_objects) do
+    for _,i in pairs(globals.perm_objects) do
         i.draw(i)
     end
 
-    --Iterates over all temporary objects, if statements prevent trying to draw member functions
+        --Iterates through all categories of temporary objects, then iterates over non-function members of those categories
     for _,v in pairs(globals.temp_objects) do
         if(type(v) == "table") then
             for k,i in pairs(v) do
@@ -103,4 +115,20 @@ end
 function love.resize(w, h)
     globals.win_width = w
     globals.win_height = h
+
+    for _,i in pairs(globals.perm_objects) do
+        i.update_offsets()
+    end
+
+    --Iterates through all categories of temporary objects, then iterates over non-function members of those categories (Allows for Special Data Structures)
+    for _,v in pairs(globals.temp_objects) do
+        if(type(v) == "table") then
+            for k,i in pairs(v) do
+                if type(k) =="number" then
+                    i.update_offsets()
+                end
+            end
+        end
+    end
+
 end

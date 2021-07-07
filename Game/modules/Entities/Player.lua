@@ -1,6 +1,6 @@
 --Includes
-require('modules.Entity')
-require('modules.InputManager')
+require('modules.Entities.InputManager')
+require('modules.Entities.Entity')
 
 function CreatePlayer(name, x, y,id)
     --Make a Player out of Entity Base Type

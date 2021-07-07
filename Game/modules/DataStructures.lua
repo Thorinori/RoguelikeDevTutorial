@@ -1,5 +1,6 @@
---Based on Queue from Programming in Lua Chapter 11
+--Queue from Programming in Lua Chapter 11
 --Pushright + popleft for queue functionality
+
 function CreateQueue()
     local Queue = {first=0,last=-1}
 

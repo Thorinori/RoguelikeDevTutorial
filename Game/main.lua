@@ -2,6 +2,7 @@
 require('libs.json')
 require('modules.General.DataStructures')
 require('modules.General.TableFunctions')
+require('modules.General.Colors')
 require('modules.Entities.Player')
 
 --LOVE Functions
@@ -10,10 +11,11 @@ function love.load()
     local seed_val = love.timer.getTime()
     love.math.setRandomSeed(seed_val)
 
-   --Basic Window Setup
-   love.window.setTitle('The Quackening')
-   love.window.setMode(800,600,{resizable = true, minwidth = 800, minheight = 600})
-    
+    --Basic Window Setup
+    love.window.setTitle('The Quaackening')
+    love.window.setMode(800,600,{resizable = true, minwidth = 800, minheight = 600})
+    love.keyboard.setKeyRepeat(true)
+
     --Table to store globals
     globals = {
         win_width = love.graphics.getWidth(),
@@ -31,9 +33,11 @@ function love.load()
             enemies = {}
         },
         next_id = 2,
+        colors = Colors(),
+        fire_rate = 10
     }
 
-    globals.perm_objects.Player = CreatePlayer('@', love.math.random(), love.math.random(), 1)
+    love.graphics.setBackgroundColor(globals.colors.black)
 
     --Debug variables
     debug = true --Preferably only global not in a table
@@ -44,6 +48,17 @@ function love.load()
             current_object_count = 1
         }
     end
+
+    --Generate Player once ready
+    globals.perm_objects.Player = CreatePlayer(
+        '@',
+        42,
+        love.math.random(),
+        love.math.random(),
+        1
+    )
+
+
 end
 
 function love.update(dt)
@@ -90,7 +105,8 @@ function love.draw()
             '\nText Width: ' .. globals.perm_objects.Player.border_offset_width..
             '\nText Height: ' .. globals.perm_objects.Player.border_offset_height..
             '\nFire Rate: '..globals.fire_rate..' shots/sec'..
-            '\nFire Timer: '.. string.format('%.4f',globals.fire_timer or 0) ..' seconds'
+            '\nFire Timer: '.. string.format('%.4f',globals.fire_timer or 0) ..' seconds'..
+            '\nMultishot Enabled: '.. tostring(globals.perm_objects.Player.obtained_upgrades.multishot)
 
             love.graphics.print(debug_string,10,10)
         end

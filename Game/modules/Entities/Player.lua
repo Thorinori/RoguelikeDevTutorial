@@ -1,10 +1,19 @@
 --Includes
 require('modules.Entities.InputManager')
 require('modules.Entities.Entity')
+require('modules.Upgrades.UpgradeList')
 
-function CreatePlayer(name, x, y,id)
+function CreatePlayer(name, size, x, y,id,color)
     --Make a Player out of Entity Base Type
-    local player = CreateEntity(name or globals.default_chars.player,x,y,id)
+    local player = CreateEntity(
+        name or globals.default_chars.player,
+        size,
+        x,
+        y,
+        id
+    )
+
+    player.obtained_upgrades = GetUpgradeList()
 
     player.update = function (this, dt)
 
@@ -27,8 +36,8 @@ function CreatePlayer(name, x, y,id)
     end
 
     player.draw = function (this)
-        love.graphics.draw(this.text, 
-        globals.win_width * this.x_offset, 
+        love.graphics.draw(this.text,
+        globals.win_width * this.x_offset,
         globals.win_height * this.y_offset) --Moves relative to window size in both dimensions
     end
 

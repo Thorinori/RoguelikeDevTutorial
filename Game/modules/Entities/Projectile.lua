@@ -1,17 +1,24 @@
 require('modules.Entities.Entity')
+require('modules.General.Constants')
+require('modules.General.ExtraMath')
 
-function CreateProj(source,name, x, y,id, speed, dest_x, dest_y)
+function CreateProj(source,name, size, x, y, id, speed, dest_x, dest_y, angle, color)
     --Position Variable sadjusted to spawn near middle of player
-    local proj = CreateEntity(name or globals.default_chars.proj,
-        x + source.border_offset_width/4, --Magic Numbers that put projectile where I want it at the moment
-        y + source.border_offset_height/8,
+    local proj = CreateEntity(
+        name or globals.default_chars.proj,
+        size,
+        x,
+        y,
         id
     )
+
+    proj.x_offset = proj.x_offset - proj.border_offset_width/2 --Moves projectile spawn to look more centered
+    proj.y_offset = proj.y_offset - proj.border_offset_width/2 --Moves projectile spawn to look more centered
     proj.speed = speed or .3
-    proj.dest_x = dest_x/globals.win_width
-    proj.dest_y = dest_y/globals.win_height
-    proj.angle = math.atan2((proj.dest_y - proj.y_offset), (proj.dest_x - proj.x_offset)) --Firing Angle for where projectiles go
-    
+    proj.dest_x = dest_x
+    proj.dest_y = dest_y
+    proj.angle = angle
+
     proj.update  = function (this, dt)
         --Update Projectile location
         this.x_offset = this.x_offset + (this.speed * math.cos(this.angle) * dt)
@@ -38,9 +45,12 @@ function CreateProj(source,name, x, y,id, speed, dest_x, dest_y)
     end
 
     proj.draw = function (this)
-        love.graphics.print(this.name,
+        love.graphics.setColor(color or globals.colors.cyan)
+        love.graphics.draw(this.text,
             globals.win_width * this.x_offset,
-            globals.win_height * this.y_offset) --Moves relative to window size in both dimensions
+            globals.win_height * this.y_offset
+        ) --Moves relative to window size in both dimensions
+        love.graphics.setColor(globals.colors.default)
     end
 
     return proj

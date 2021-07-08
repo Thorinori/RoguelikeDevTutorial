@@ -1,4 +1,7 @@
 require('modules.Entities.Projectile')
+require('modules.Upgrades.Multishot')
+require('modules.Upgrades.DefaultShot')
+
 
 --Function for Player Input that isn't handled by the normal callbacks currently. May move later
 function CheckInput(this,dt)
@@ -7,7 +10,6 @@ function CheckInput(this,dt)
     local shift_val = .2
     local diagonal_val = math.sqrt(math.pow(shift_val,2)/2)
     local proj_speed = .3
-    globals.fire_rate = 10 --Shots per second, needed for firing testing function currently
 
     --Check diagonal inputs first since they have most requirements then check single directions
     if kb_down('d') and kb_down('w') then
@@ -40,8 +42,8 @@ function CheckInput(this,dt)
     end
 
     if mouse_down('1') then
-        local x_pos, y_pos = love.mouse.getPosition()
-        if(globals.fire_timer) then
+        local x_pos, y_pos = love.mouse.getPosition() --Main Projectile Target
+        if(globals.fire_timer) then --If I can fire now
             if (globals.fire_timer > 0) then
                 globals.fire_timer = globals.fire_timer - dt
             else
@@ -55,21 +57,13 @@ function CheckInput(this,dt)
     end
 end
 
---Testing function
+
+
 function FireProj(mouse_x, mouse_y, speed)
-    local speed = speed or love.math.random()
-    local proj_char = 'x'
-    globals.temp_objects.bullets[globals.next_id] = CreateProj(globals.perm_objects.Player,
-        proj_char,globals.perm_objects.Player.x_offset,
-        globals.perm_objects.Player.y_offset,
-        globals.next_id,
-        speed,
-        mouse_x,
-        mouse_y
-    )
-    globals.next_id = globals.next_id + 1
-    if(debug) then
-        debug_globals.current_object_count = debug_globals.current_object_count + 1
+    DefaultShot(mouse_x, mouse_y, speed)
+    --Check Upgrades
+    if(globals.perm_objects.Player.obtained_upgrades.multishot) then
+        Multishot(mouse_x, mouse_y, speed)
     end
 end
 
@@ -98,15 +92,29 @@ function love.keypressed(key, unicode)
                     debug_globals.show_debug = true
                 end
             end
+            if key == ']' and love.keyboard.isDown('lshift') then
+                globals.perm_objects.Player.change_size(globals.perm_objects.Player.size + 1)
+            end
+            if key == '[' and love.keyboard.isDown('lshift')then
+                globals.perm_objects.Player.change_size(globals.perm_objects.Player.size - 1)
+            end
+            if key == ']' and not love.keyboard.isDown('lshift') then
+                globals.fire_rate = globals.fire_rate + 1
+            end
+            if key == '[' and not love.keyboard.isDown('lshift') then
+                globals.fire_rate = globals.fire_rate - 1
+            end
+            if key == '1' then
+                if(globals.perm_objects.Player.obtained_upgrades['multishot']) then
+                    globals.perm_objects.Player.obtained_upgrades['multishot'] = false
+                else
+                    globals.perm_objects.Player.obtained_upgrades['multishot'] = true
+                end
+            end
         end
         --Keys that should work only when game is in play
         if(globals.game_state == 'play') then
-            if key == ']' then
-                globals.fire_rate = globals.fire_rate + 1
-            end
-            if key == '[' then
-                globals.fire_rate = globals.fire_rate - 1
-            end
+
         end
     end
 end

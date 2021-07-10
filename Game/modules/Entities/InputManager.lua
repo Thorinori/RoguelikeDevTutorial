@@ -1,6 +1,7 @@
 require('modules.Entities.Projectile')
 require('modules.Upgrades.Multishot')
 require('modules.Upgrades.DefaultShot')
+require('modules.UI.DebugMenu')
 
 
 --Function for Player Input that isn't handled by the normal callbacks currently. May move later
@@ -47,34 +48,24 @@ function CheckInput(this,dt)
             if (globals.fire_timer > 0) then
                 globals.fire_timer = globals.fire_timer - dt
             else
-                FireProj(x_pos, y_pos, proj_speed)
+                this.FireProj(x_pos, y_pos, proj_speed)
                 globals.fire_timer = 1/globals.fire_rate
             end
         else
-            FireProj(x_pos, y_pos, proj_speed)
+            this.FireProj(x_pos, y_pos, proj_speed)
             globals.fire_timer = 1/globals.fire_rate
         end
     end
 end
 
-
-
-function FireProj(mouse_x, mouse_y, speed)
-    DefaultShot(mouse_x, mouse_y, speed)
-    --Check Upgrades
-    if(globals.perm_objects.Player.obtained_upgrades.multishot) then
-        Multishot(mouse_x, mouse_y, speed)
-    end
-end
-
 --Handle Love Callbacks
-
 function love.keypressed(key, unicode)
     --Makes sure everything only works while game has focus
     if(love.window.hasFocus()) then
         if key == 'escape' then
             love.window.close()
         end
+
         if key == 'p' then
             if(globals.game_state == 'play') then
                 globals.game_state = 'paused'
@@ -84,12 +75,31 @@ function love.keypressed(key, unicode)
             end
         end
 
+        if key == 'v' then
+            if(love.window.getVSync() == 1) then
+                love.window.setVSync(0)
+            else
+                love.window.setVSync(1)
+            end
+        end
+
+        if key == 'x' then
+            for k,v in pairs(globals.temp_objects.bullets) do
+                if(type(k) == 'number' and v.getSource() == globals.perm_objects.Player) then
+                    v.delete()
+                end
+            end
+        end
+
         if(debug) then
             if key == '\\' then
-                if(debug_globals.show_debug == true) then
+                if(debug_globals.show_debug) then
                     debug_globals.show_debug = false
                 else
                     debug_globals.show_debug = true
+                    globals.temp_objects.menus[globals.next_id] = OpenDebugMenu(globals.next_id)
+                    globals.next_id = globals.next_id + 1
+                    debug_globals.current_object_count = debug_globals.current_object_count + 1
                 end
             end
             if key == ']' and love.keyboard.isDown('lshift') then

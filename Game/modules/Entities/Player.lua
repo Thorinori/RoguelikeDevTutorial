@@ -16,7 +16,8 @@ function CreatePlayer(name, size, x, y,id,color, font_choice)
 
     player.obtained_upgrades = GetUpgradeList()
     player.color = color
-
+    player. rotation = 0
+    
     player.FireProj = function(mouse_x, mouse_y, speed)
         local proj_size = 20
         local start_x = globals.perm_objects.Player.x_offset + globals.perm_objects.Player.border_offset_width/2
@@ -28,6 +29,15 @@ function CreatePlayer(name, size, x, y,id,color, font_choice)
         if(globals.perm_objects.Player.obtained_upgrades.multishot) then
             Multishot(mouse_x, mouse_y, start_x, start_y, speed, proj_size, font_choice)
         end
+    end
+
+    player.update_rotation = function(mouse_x, mouse_y)
+        player.rotation = GetFiringAngle(
+            mouse_y,
+            player.y_offset * globals.win_height + player.center_x,
+            mouse_x,
+            player.x_offset * globals.win_width + player.center_y
+        ) + CONSTANTS.PI/2 --Rotates so top of character is the "front"
     end
 
     player.update = function (this, dt)

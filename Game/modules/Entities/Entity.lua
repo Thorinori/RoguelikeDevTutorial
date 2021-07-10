@@ -17,23 +17,6 @@ function CreateEntity(name, size, x, y, id, font_choice)
     entity.border_offset_width = NormalizeToWindowWidth(entity.text:getWidth())
     entity.border_offset_height = NormalizeToWindowHeight(entity.text:getHeight())
 
-    entity.update_positions = function ()
-
-    end
-
-    entity.update_rotation = function(mouse_x, mouse_y)
-        entity.rotation = GetFiringAngle(
-            mouse_y,
-            entity.y_offset * globals.win_height + entity.center_x,
-            mouse_x,
-            entity.x_offset * globals.win_width + entity.center_y
-        ) + CONSTANTS.PI/2 --Rotates so top of character is the "front"
-
-        entity.update_positions()
-    end
-
-
-
     entity.update_offsets = function()
         entity.border_offset_width = NormalizeToWindowWidth(entity.text:getWidth())
         entity.border_offset_height = NormalizeToWindowHeight(entity.text:getHeight())

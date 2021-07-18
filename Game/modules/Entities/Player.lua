@@ -20,13 +20,13 @@ function CreatePlayer(name, size, x, y,id,color, font_choice)
     
     player.FireProj = function(mouse_x, mouse_y, speed)
         local proj_size = 20
-        local start_x = globals.perm_objects.Player.x_offset + globals.perm_objects.Player.border_offset_width/2
-        local start_y = globals.perm_objects.Player.y_offset + globals.perm_objects.Player.border_offset_height/2
+        local start_x = player.x + player.center_x
+        local start_y = player.y + player.center_y
         local font_choice = globals.default_fonts.love_default
 
         DefaultShot(mouse_x, mouse_y, start_x, start_y, speed, proj_size, font_choice)
         --Check Upgrades
-        if(globals.perm_objects.Player.obtained_upgrades.multishot) then
+        if(player.obtained_upgrades.multishot) then
             Multishot(mouse_x, mouse_y, start_x, start_y, speed, proj_size, font_choice)
         end
     end
@@ -34,52 +34,46 @@ function CreatePlayer(name, size, x, y,id,color, font_choice)
     player.update_rotation = function(mouse_x, mouse_y)
         player.rotation = GetFiringAngle(
             mouse_y,
-            player.y_offset * globals.win_height + player.center_x,
+            player.y  * globals.win_height+ player.center_x,
             mouse_x,
-            player.x_offset * globals.win_width + player.center_y
+            player.x  * globals.win_width + player.center_y
         ) + CONSTANTS.PI/2 --Rotates so top of character is the "front"
     end
 
-    player.update = function (this, dt)
+    player.update = function (dt)
 
         --Handle Inputs for the frame
-        CheckInput(this,dt)
+        CheckInput(dt)
 
         local mouse_x, mouse_y = love.mouse.getPosition()
-        this.update_rotation(mouse_x,mouse_y)
+        player.update_rotation(mouse_x,mouse_y)
 
-        --Location Bounds Enforcement
-        if(this.x_offset >= globals.max_offset-this.border_offset_width) then
-            this.x_offset = globals.max_offset - this.border_offset_width
+        --Location Bounds Enforcement for entire screen
+        if(player.x >= globals.max_bound - player.border_offset_width) then
+            player.x = globals.max_bound - player.border_offset_width
         end
-        if(this.y_offset >= globals.max_offset-this.border_offset_height) then
-            this.y_offset = globals.max_offset - this.border_offset_height
+        if(player.y >= globals.max_bound - player.border_offset_height) then
+            player.y = globals.max_bound - player.border_offset_height
         end
-        if(this.x_offset < globals.min_offset) then
-            this.x_offset = globals.min_offset
+        if(player.x< globals.min_bound ) then
+            player.x = globals.min_bound
         end
-        if(this.y_offset < globals.min_offset) then
-            this.y_offset = globals.min_offset
+        if(player.y < globals.min_bound) then
+            player.y = globals.min_bound
         end
+
     end
 
     player.draw = function ()
-        local mouse_x, mouse_y = love.mouse.getPosition()
         love.graphics.draw(
             player.text,
-            globals.win_width * player.x_offset + player.center_x, --Moves relative to window size in both dimensions
-            globals.win_height * player.y_offset + player.center_y,
+            player.x * globals.win_width + (player.center_x * globals.win_width), --Moves relative to window size in both dimensions
+            player.y * globals.win_height+ (player.center_y * globals.win_width),
             player.rotation,
             2,
             2,
-            player.x_offset + player.center_x,
-            player.y_offset + player.center_y
-        )
-        love.graphics.line(
-            player.x_offset * globals.win_width + player.center_x,
-            player.y_offset * globals.win_height + player.center_y ,
-            mouse_x,
-            mouse_y
+            player.x + player.center_x * globals.win_width,
+            player.y + player.center_y * globals.win_height
         )
     end
 

@@ -5,6 +5,7 @@ require('modules.General.TableFunctions')
 require('modules.General.Colors')
 require('modules.General.Constants')
 require('modules.Entities.Player')
+require('modules.World.Rooms.TestRoom')
 
 --LOVE Functions
 function love.load()
@@ -21,9 +22,9 @@ function love.load()
     globals = {
         win_width = love.graphics.getWidth(),
         win_height = love.graphics.getHeight(),
+        max_bound = 1,
+        min_bound = 0,
         game_state = 'play',
-        max_offset = 1,
-        min_offset = 0,
         default_chars = {
             player = 'x',
             proj = 'o'
@@ -32,7 +33,7 @@ function love.load()
         temp_objects = {
             bullets = {},
             enemies = {},
-            menus = {}
+            menus = {},
         },
         next_id = 2,
         colors = Colors(),
@@ -41,7 +42,8 @@ function love.load()
             love_default = '/res/fonts/Vera.ttf',
             player = '/res/fonts/origa___.ttf',
         },
-        cursor = '/res/cursor.png'
+        cursor = '/res/cursor.png',
+        load_info = {}
     }
 
     love.graphics.setBackgroundColor(globals.colors.black)
@@ -53,12 +55,23 @@ function love.load()
         debug_globals = {
             current_dt = 0,
             show_debug = false,
-            current_object_count = 1
+            current_object_count = 1,
+            Grid = Grid(10,10, true),
         }
     end
 
+    globals.load_info.load_font = love.graphics.newFont(
+    globals.default_fonts.love_default,
+    80
+)
+
+    globals.load_info.load_text = love.graphics.newText(globals.load_info.load_font, "LOADING")
+
+
+
+
     --Generate Player once ready
-    globals.perm_objects.Player = CreatePlayer(
+    globals.Player = CreatePlayer(
         'x',
         42,
         love.math.random(),
@@ -67,23 +80,19 @@ function love.load()
         nil,
         globals.default_fonts.player
     )
-
-
+   
+    globals.current_room = TestRoom()
 end
+
+
 
 function love.update(dt)
     --Only update when window is focused and game is in play mode
     if(love.window.hasFocus() and globals.game_state ~= 'paused') then
-        --Necessary debug globals updated here
-        if(debug) then
-            debug_globals.current_dt = dt
-            debug_globals.current_mem_usage = collectgarbage('count')
-            debug_globals.mouse_x_pos, debug_globals.mouse_y_pos = love.mouse.getPosition()
-        end
-
+        
         --Do updates for all permanent objects
         for _,i in pairs(globals.perm_objects) do
-            i.update(i,dt)
+            i.update(dt)
         end
 
         --Iterates through all categories of temporary objects, then iterates over non-function members of those categories
@@ -91,34 +100,80 @@ function love.update(dt)
             if(type(v) == "table") then
                 for k,i in pairs(v) do
                     if type(k) =="number" then
-                        i.update(i,dt)
+                        i.update(dt)
                     end
                 end
             end
+        end
+
+        globals.current_room.update(dt)
+
+        globals.Player.update(dt)
+
+        --Necessary debug globals updated here
+        if(debug) then
+            debug_globals.current_dt = dt
+            debug_globals.current_mem_usage = collectgarbage('count')
+            debug_globals.mouse_x_pos, debug_globals.mouse_y_pos = love.mouse.getPosition()
+            debug_globals.Grid.update()
         end
     end
 end
 
 function love.draw()
-    for _,i in pairs(globals.perm_objects) do
-        i.draw(i)
-    end
+    if(globals.game_state ~= 'loading') then
+        for _,i in pairs(globals.perm_objects) do
+            i.draw(i)
+        end
 
-    --Iterates through all categories of temporary objects, then iterates over non-function members of those categories
-    for _,v in pairs(globals.temp_objects) do
-        if(type(v) == "table") then
-            for k,i in pairs(v) do
-                if type(k) =="number" then
-                    i.draw(i)
+        --Iterates through all categories of temporary objects besides menus, then iterates over non-function members of those categories
+        for k,v in pairs(globals.temp_objects) do
+            if(type(v) == "table" and k ~= 'menus') then
+                for k,i in pairs(v) do
+                    if type(k) =="number" then
+                        i.draw(i)
+                    end
                 end
             end
         end
+
+        if(debug) then
+            debug_globals.Grid.draw()
+        end
+        
+        globals.current_room.draw()
+
+        globals.Player.draw()
+
+        --Iterate over specifically menus since they should be on top
+        for k,v in pairs(globals.temp_objects) do
+            if(type(v) == "table" and k == 'menus') then
+                for k,i in pairs(v) do
+                    if type(k) =="number" then
+                        i.draw(i)
+                    end
+                end
+            end
+        end
+        
+    else
+        local load_text = globals.load_info.load_text
+        love.graphics.draw(
+            load_text,
+            globals.win_width/2 - load_text:getWidth()/2,
+            globals.win_height/2 - load_text:getHeight()/2
+        )
     end
+
 end
 
 function love.resize(w, h)
     globals.win_width = w
     globals.win_height = h
+
+    if(debug) then
+        debug_globals.Grid.update_offsets()
+    end
 
     for _,i in pairs(globals.perm_objects) do
         i.update_offsets()
@@ -135,4 +190,6 @@ function love.resize(w, h)
         end
     end
 
+    globals.current_room.update_offsets()
+    globals.Player.update_offsets()
 end

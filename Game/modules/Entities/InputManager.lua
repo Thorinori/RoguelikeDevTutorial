@@ -1,45 +1,106 @@
 require('modules.Entities.Projectile')
 require('modules.Upgrades.Multishot')
 require('modules.Upgrades.DefaultShot')
-require('modules.UI.DebugMenu')
 
+if(debug) then
+    require('modules.UI.DebugMenu')
+    require('modules.UI.Grid')
+end
 
 --Function for Player Input that isn't handled by the normal callbacks currently. May move later
-function CheckInput(this,dt)
+function CheckInput(dt)
+    local player = globals.Player
     local kb_down = love.keyboard.isDown
     local mouse_down = love.mouse.isDown --1 is left, 2 is right, 3 is middle click
     local shift_val = .2
     local diagonal_val = math.sqrt(math.pow(shift_val,2)/2)
     local proj_speed = .3
 
+    local old_x = player.x
+    local old_y = player.y
+
+    local top_wall = globals.current_room.walls.top
+    local bottom_wall = globals.current_room.walls.bottom
+    local left_wall = globals.current_room.walls.left
+    local right_wall = globals.current_room.walls.right
+
     --Check diagonal inputs first since they have most requirements then check single directions
     if kb_down('d') and kb_down('w') then
-        this.x_offset = this.x_offset + (diagonal_val * dt)
-        this.y_offset = this.y_offset - (diagonal_val * dt)
+
+        player.x = player.x + (diagonal_val * dt)
+        player.y = player.y - (diagonal_val * dt)
+
+        if(top_wall.collide(player)) then
+            player.y = old_y
+        end
+
+        if(right_wall.collide(player)) then
+            player.x = old_x
+        end
 
     elseif kb_down('d') and kb_down('s') then
-        this.x_offset = this.x_offset + (diagonal_val * dt)
-        this.y_offset = this.y_offset + (diagonal_val * dt)
+        player.x = player.x + (diagonal_val * dt)
+        player.y = player.y + (diagonal_val * dt)
+
+        if(bottom_wall.collide(player)) then
+            player.y = old_y
+        end
+
+        if(right_wall.collide(player)) then
+            player.x = old_x
+        end
 
     elseif kb_down('a') and kb_down('w') then
-        this.x_offset = this.x_offset - (diagonal_val * dt)
-        this.y_offset = this.y_offset - (diagonal_val * dt)
+        player.x = player.x - (diagonal_val * dt)
+        player.y = player.y - (diagonal_val * dt)
+        
+        if(top_wall.collide(player)) then
+            player.y = old_y
+        end
+
+        if(left_wall.collide(player)) then
+            player.x = old_x
+        end
 
     elseif kb_down('a') and kb_down('s') then
-        this.x_offset = this.x_offset - (diagonal_val * dt)
-        this.y_offset = this.y_offset + (diagonal_val * dt)
+        player.x = player.x - (diagonal_val * dt)
+        player.y = player.y + (diagonal_val * dt)
+
+        if(bottom_wall.collide(player)) then
+            player.y = old_y
+        end
+
+        if(left_wall.collide(player)) then
+            player.x = old_x
+        end
 
     elseif kb_down('d') then
-        this.x_offset = this.x_offset + (shift_val * dt)
+        player.x = player.x + (shift_val * dt)
+
+        if(right_wall.collide(player)) then
+            player.x = old_x
+        end
 
     elseif kb_down('a') then
-        this.x_offset = this.x_offset - (shift_val * dt)
+        player.x = player.x - (shift_val * dt)
+
+        if(left_wall.collide(player)) then
+            player.x = old_x
+        end
 
     elseif kb_down('w') then
-        this.y_offset = this.y_offset - (shift_val * dt)
+        player.y = player.y - (shift_val * dt)
+
+        if(top_wall.collide(player)) then
+            player.y = old_y
+        end
 
     elseif kb_down('s') then
-        this.y_offset = this.y_offset + (shift_val * dt)
+        player.y = player.y + (shift_val * dt)
+
+        if(bottom_wall.collide(player)) then
+            player.y = old_y
+        end
     end
 
     if mouse_down('1') then
@@ -48,11 +109,11 @@ function CheckInput(this,dt)
             if (globals.fire_timer > 0) then
                 globals.fire_timer = globals.fire_timer - dt
             else
-                this.FireProj(x_pos, y_pos, proj_speed)
+                player.FireProj(x_pos, y_pos, proj_speed)
                 globals.fire_timer = 1/globals.fire_rate
             end
         else
-            this.FireProj(x_pos, y_pos, proj_speed)
+            player.FireProj(x_pos, y_pos, proj_speed)
             globals.fire_timer = 1/globals.fire_rate
         end
     end
@@ -72,6 +133,14 @@ function love.keypressed(key, unicode)
             else
                 globals.game_state = 'play'
                 globals.fire_timer = 0
+            end
+        end
+
+        if key == 'l' then
+            if(globals.game_state == 'loading') then
+                globals.game_state = 'play'
+            else
+                globals.game_state = 'loading'
             end
         end
 
@@ -102,11 +171,18 @@ function love.keypressed(key, unicode)
                     debug_globals.current_object_count = debug_globals.current_object_count + 1
                 end
             end
+            if key == 'g' then
+                if(debug_globals.Grid.visible) then
+                    debug_globals.Grid.visible = false
+                else
+                    debug_globals.Grid.visible = true
+                end
+            end
             if key == ']' and love.keyboard.isDown('lshift') then
-                globals.perm_objects.Player.change_size(globals.perm_objects.Player.size + 1)
+                globals.Player.change_size(globals.Player.size + 1)
             end
             if key == '[' and love.keyboard.isDown('lshift')then
-                globals.perm_objects.Player.change_size(globals.perm_objects.Player.size - 1)
+                globals.Player.change_size(globals.Player.size - 1)
             end
             if key == ']' and not love.keyboard.isDown('lshift') then
                 globals.fire_rate = globals.fire_rate + 1
@@ -115,10 +191,10 @@ function love.keypressed(key, unicode)
                 globals.fire_rate = globals.fire_rate - 1
             end
             if key == '1' then
-                if(globals.perm_objects.Player.obtained_upgrades['multishot']) then
-                    globals.perm_objects.Player.obtained_upgrades['multishot'] = false
+                if(globals.Player.obtained_upgrades['multishot']) then
+                    globals.Player.obtained_upgrades['multishot'] = false
                 else
-                    globals.perm_objects.Player.obtained_upgrades['multishot'] = true
+                    globals.Player.obtained_upgrades['multishot'] = true
                 end
             end
         end

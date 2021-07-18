@@ -14,8 +14,8 @@ function CreateProj(source,name, size, x, y, id, speed, dest_x, dest_y, angle, c
     )
     
     proj.source = source
-    proj.x_offset = proj.x_offset - proj.border_offset_width/2 --Moves projectile spawn to look more centered
-    proj.y_offset = proj.y_offset - proj.border_offset_width/2 --Moves projectile spawn to look more centered
+    proj.x = proj.x - proj.border_offset_width/2 --Moves projectile spawn to look more centered
+    proj.y = proj.y - proj.border_offset_width/2 --Moves projectile spawn to look more centered
     proj.speed = speed or .3
     proj.dest_x = dest_x
     proj.dest_y = dest_y
@@ -35,32 +35,28 @@ function CreateProj(source,name, size, x, y, id, speed, dest_x, dest_y, angle, c
     local cos = math.cos
     local sin = math.sin
 
-    proj.update  = function (this, dt)
+    proj.update  = function (dt)
         --Update Projectile location
-        this.x_offset = this.x_offset + (this.speed * cos(this.angle) * dt)
-        this.y_offset = this.y_offset + (this.speed * sin(this.angle) * dt)
+        proj.x = proj.x + (proj.speed * cos(proj.angle) * dt)
+        proj.y = proj.y + (proj.speed * sin(proj.angle) * dt)
 
         --Cull Projectiles for both dimensions if they pass the screen borders
-        if(this.x_offset*globals.win_width >= globals.win_width + globals.max_offset) or (this.x_offset*globals.win_width <= globals.min_offset) then
-            if((globals.perm_objects.Player.x_offset >= 0) and (globals.perm_objects.Player.x_offset <= 1)) then
-                proj.delete()
-
-            end
+        if(proj.x > globals.max_bound) or (proj.x + proj.border_offset_width < globals.min_bound) then
+            proj.delete()
         end
 
-        if(this.y_offset*globals.win_height >= globals.win_height + globals.max_offset) or (this.y_offset*globals.win_height <= globals.min_offset) then
-            if((globals.perm_objects.Player.y_offset >= 0) and (globals.perm_objects.Player.y_offset  <= 1)) then
-                proj.delete()
-            end
+        if(proj.y > globals.max_bound) or (proj.y + proj.border_offset_height < globals.min_bound) then
+            proj.delete()
         end
     end
 
-    proj.draw = function (this)
+    proj.draw = function ()
         love.graphics.setColor(color or globals.colors.cyan)
-        love.graphics.draw(this.text,
-            globals.win_width * this.x_offset,
-            globals.win_height * this.y_offset
-        ) --Moves relative to window size in both dimensions
+        love.graphics.draw(
+            proj.text,
+            proj.x * globals.win_width,
+            proj.y * globals.win_height
+        )
         love.graphics.setColor(globals.colors.default)
     end
 

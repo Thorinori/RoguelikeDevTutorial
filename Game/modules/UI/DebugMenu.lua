@@ -10,8 +10,8 @@ end
 
 local function update_debug_string()
     local debug_string = 
-    'Position: (X: '..string.format('%.4f',globals.perm_objects.Player.x_offset * globals.win_width)..
-    ' Y: '.. string.format('%.4f',globals.perm_objects.Player.y_offset * globals.win_height)..')'..
+    'Position: (X: '..string.format('%.4f',globals.Player.x * globals.win_width)..
+    ' Y: '.. string.format('%.4f',globals.Player.y * globals.win_height)..')'..
     '\nMouse Position: ('..string.format('%.4f',debug_globals.mouse_x_pos)..', '.. string.format('%.4f',debug_globals.mouse_y_pos)..')'..
     '\nVSync: ' .. VSyncStatus()..
     '\ndT: '..string.format('%.4f',debug_globals.current_dt)..
@@ -20,7 +20,7 @@ local function update_debug_string()
     '\nCurrent Objects: '..debug_globals.current_object_count..
     '\nCurrent Memory Usage: ' .. string.format('%.2f', debug_globals.current_mem_usage/1024.0) .. 'MB'..
     '\nFire Rate: '..globals.fire_rate..' shots/sec'..
-    '\nMultishot Enabled: '.. tostring(globals.perm_objects.Player.obtained_upgrades.multishot)..
+    '\nMultishot Enabled: '.. tostring(globals.Player.obtained_upgrades.multishot)..
     ''
 
     return debug_string
@@ -59,7 +59,7 @@ function OpenDebugMenu(id)
                     DebugMenu.height = debug_string:getHeight()
                 end
 
-                love.graphics.setColor(ChangeAlpha(globals.colors.red,.35))
+                love.graphics.setColor(ChangeAlpha(globals.colors.green,.35))
                 love.graphics.rectangle(
                     DebugMenu.mode,
                     DebugMenu.x_offset,
@@ -69,6 +69,7 @@ function OpenDebugMenu(id)
                 )
 
                 love.graphics.setColor(globals.colors.white)
+                love.graphics.setColor(ChangeAlpha(globals.colors.green,1)) --Remove in future after fixing alpha changing in color itself instead of copy
                 love.graphics.draw(debug_string,DebugMenu.x_offset,DebugMenu.y_offset)
                 love.graphics.setColor(globals.colors.default)
             end

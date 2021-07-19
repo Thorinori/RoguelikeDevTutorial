@@ -13,54 +13,69 @@ function CheckInput(dt)
     local kb_down = love.keyboard.isDown
     local mouse_down = love.mouse.isDown --1 is left, 2 is right, 3 is middle click
     local shift_val = 150
+    local decel_factor = 50 --Small number = much stronger deceleration
     local diagonal_val = math.sqrt(math.pow(shift_val,2)/2)
     local proj_speed = 200
 
-    local old_x = player.x
-    local old_y = player.y
-
-    local top_wall = globals.current_room.walls.top
-    local bottom_wall = globals.current_room.walls.bottom
-    local left_wall = globals.current_room.walls.left
-    local right_wall = globals.current_room.walls.right
-
     --Check diagonal inputs first since they have most requirements then check single directions
     if kb_down('d') and kb_down('w') then
-
-        player.body:setX(player.body:getX() + (diagonal_val * dt))
-        player.body:setY(player.body:getY() - (diagonal_val * dt))
-
+        if(globals.instant_move) then
+            player.body:setX(player.body:getX() + (diagonal_val * dt))
+            player.body:setY(player.body:getY() - (diagonal_val * dt))
+        else
+            player.body:applyForce(diagonal_val*2, -diagonal_val*2)
+        end
     elseif kb_down('d') and kb_down('s') then
-
-        player.body:setX(player.body:getX() + (diagonal_val * dt))
-        player.body:setY(player.body:getY() + (diagonal_val * dt))
-
+        if(globals.instant_move) then
+            player.body:setX(player.body:getX() + (diagonal_val * dt))
+            player.body:setY(player.body:getY() + (diagonal_val * dt))
+        else
+            player.body:applyForce(diagonal_val*2, diagonal_val*2)
+        end
     elseif kb_down('a') and kb_down('w') then
-
-        player.body:setX(player.body:getX() - (diagonal_val * dt))
-        player.body:setY(player.body:getY() - (diagonal_val * dt))
-
+        if(globals.instant_move) then
+            player.body:setX(player.body:getX() - (diagonal_val * dt))
+            player.body:setY(player.body:getY() - (diagonal_val * dt))
+        else
+            player.body:applyForce(-diagonal_val*2, -diagonal_val*2)
+        end
     elseif kb_down('a') and kb_down('s') then
-
-        player.body:setX(player.body:getX() - (diagonal_val * dt))
-        player.body:setY(player.body:getY() + (diagonal_val * dt))
-
+        if(globals.instant_move) then
+            player.body:setX(player.body:getX() - (diagonal_val * dt))
+            player.body:setY(player.body:getY() + (diagonal_val * dt))
+        else
+            player.body:applyForce(-diagonal_val*2, diagonal_val*2)
+        end
     elseif kb_down('d') then
-
-        player.body:setX(player.body:getX() + (shift_val * dt))
-
+        if(globals.instant_move) then
+            player.body:setX(player.body:getX() + (shift_val * dt))
+        else
+            player.body:applyForce(shift_val, 0)
+        end
     elseif kb_down('a') then
-
-        player.body:setX(player.body:getX() - (shift_val * dt))
-
+        if(globals.instant_move) then
+            player.body:setX(player.body:getX() - (shift_val * dt))
+        else
+            player.body:applyForce(-shift_val, 0)
+        end
     elseif kb_down('w') then
-
-        player.body:setY(player.body:getY() - (shift_val * dt))
-
+        if(globals.instant_move) then
+            player.body:setY(player.body:getY() - (shift_val * dt))
+        else
+            player.body:applyForce(0, -shift_val)
+        end
     elseif kb_down('s') then
+        if(globals.instant_move) then
+            player.body:setY(player.body:getY() + (shift_val * dt))
+        else
+            player.body:applyForce(0, shift_val)
+        end
+    end
 
-        player.body:setY(player.body:getY() + (shift_val * dt))
-
+    --Faster Deceleration (Trying to reduce "floatiness" from movement)
+    if(not globals.instant_move) then
+        local x,y = player.body:getLinearVelocity()
+        player.body:applyLinearImpulse(-x/decel_factor, -y/decel_factor)
     end
 
     if mouse_down('1') then

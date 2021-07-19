@@ -1,3 +1,5 @@
+ --Returns true if a and b are of desired types name1 amd name2
+ --without order mattering, makes callbacks much more readable
 local function compare(a,b,name1,name2)
     return (a:getUserData() == name1 or a:getUserData() == name2) and
         (b:getUserData() == name1 or b:getUserData() == name2)

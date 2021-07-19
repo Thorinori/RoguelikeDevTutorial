@@ -45,7 +45,8 @@ function love.load()
         },
         cursor = '/res/cursor.png',
         load_info = {},
-        world = love.physics.newWorld(0,0,true)
+        world = love.physics.newWorld(0,0,true),
+        instant_move = false --Toggle physics based movement, buggy when true
     }
 
     love.graphics.setBackgroundColor(globals.colors.black)
@@ -63,9 +64,9 @@ function love.load()
     end
 
     globals.load_info.load_font = love.graphics.newFont(
-    globals.default_fonts.love_default,
-    80
-)
+        globals.default_fonts.love_default,
+        80
+    )
 
     globals.load_info.load_text = love.graphics.newText(globals.load_info.load_font, "LOADING")
 

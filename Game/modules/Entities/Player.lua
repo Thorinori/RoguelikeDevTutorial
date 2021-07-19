@@ -58,6 +58,8 @@ function CreatePlayer(name, size, x, y, id, color, font_choice)
             mouse_x,
             player.x + player.center_y
         ) + math.pi/2 --Rotates so top of character is the "front"
+
+       --player.body:setAngle(-player.rotation)
     end
 
     player.update = function (dt)
@@ -108,7 +110,12 @@ function CreatePlayer(name, size, x, y, id, color, font_choice)
         love.graphics.draw(
             player.text,
             player.x,
-            player.y
+            player.y--,
+            -- player.rotation,
+            -- 1,
+            -- 1,
+            -- 0,
+            -- 0
         )
         love.graphics.setColor(globals.colors.default)
     end

@@ -12,9 +12,9 @@ function CheckInput(dt)
     local player = globals.Player
     local kb_down = love.keyboard.isDown
     local mouse_down = love.mouse.isDown --1 is left, 2 is right, 3 is middle click
-    local shift_val = .2
+    local shift_val = 150
     local diagonal_val = math.sqrt(math.pow(shift_val,2)/2)
-    local proj_speed = .3
+    local proj_speed = 200
 
     local old_x = player.x
     local old_y = player.y
@@ -27,80 +27,40 @@ function CheckInput(dt)
     --Check diagonal inputs first since they have most requirements then check single directions
     if kb_down('d') and kb_down('w') then
 
-        player.x = player.x + (diagonal_val * dt)
-        player.y = player.y - (diagonal_val * dt)
-
-        if(top_wall.collide(player)) then
-            player.y = old_y
-        end
-
-        if(right_wall.collide(player)) then
-            player.x = old_x
-        end
+        player.body:setX(player.body:getX() + (diagonal_val * dt))
+        player.body:setY(player.body:getY() - (diagonal_val * dt))
 
     elseif kb_down('d') and kb_down('s') then
-        player.x = player.x + (diagonal_val * dt)
-        player.y = player.y + (diagonal_val * dt)
 
-        if(bottom_wall.collide(player)) then
-            player.y = old_y
-        end
-
-        if(right_wall.collide(player)) then
-            player.x = old_x
-        end
+        player.body:setX(player.body:getX() + (diagonal_val * dt))
+        player.body:setY(player.body:getY() + (diagonal_val * dt))
 
     elseif kb_down('a') and kb_down('w') then
-        player.x = player.x - (diagonal_val * dt)
-        player.y = player.y - (diagonal_val * dt)
-        
-        if(top_wall.collide(player)) then
-            player.y = old_y
-        end
 
-        if(left_wall.collide(player)) then
-            player.x = old_x
-        end
+        player.body:setX(player.body:getX() - (diagonal_val * dt))
+        player.body:setY(player.body:getY() - (diagonal_val * dt))
 
     elseif kb_down('a') and kb_down('s') then
-        player.x = player.x - (diagonal_val * dt)
-        player.y = player.y + (diagonal_val * dt)
 
-        if(bottom_wall.collide(player)) then
-            player.y = old_y
-        end
-
-        if(left_wall.collide(player)) then
-            player.x = old_x
-        end
+        player.body:setX(player.body:getX() - (diagonal_val * dt))
+        player.body:setY(player.body:getY() + (diagonal_val * dt))
 
     elseif kb_down('d') then
-        player.x = player.x + (shift_val * dt)
 
-        if(right_wall.collide(player)) then
-            player.x = old_x
-        end
+        player.body:setX(player.body:getX() + (shift_val * dt))
 
     elseif kb_down('a') then
-        player.x = player.x - (shift_val * dt)
 
-        if(left_wall.collide(player)) then
-            player.x = old_x
-        end
+        player.body:setX(player.body:getX() - (shift_val * dt))
 
     elseif kb_down('w') then
-        player.y = player.y - (shift_val * dt)
 
-        if(top_wall.collide(player)) then
-            player.y = old_y
-        end
+        player.body:setY(player.body:getY() - (shift_val * dt))
 
     elseif kb_down('s') then
-        player.y = player.y + (shift_val * dt)
 
-        if(bottom_wall.collide(player)) then
-            player.y = old_y
-        end
+        player.body:setY(player.body:getY() + (shift_val * dt))
+
     end
 
     if mouse_down('1') then
@@ -206,12 +166,12 @@ function love.keypressed(key, unicode)
 end
 
 function love.keyreleased(key, unicode)
-    --[[if(love.window.hasFocus()) then
+    if(love.window.hasFocus()) then
         --Inputs that only work while game is in play
         if(globals.game_state == 'play') then
 
         end
-    end]]
+    end
 end
 
 

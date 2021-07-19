@@ -14,8 +14,8 @@ function CreateProj(source,name, size, x, y, id, speed, dest_x, dest_y, angle, c
     )
     
     proj.source = source
-    proj.x = proj.x - proj.border_offset_width/2 --Moves projectile spawn to look more centered
-    proj.y = proj.y - proj.border_offset_width/2 --Moves projectile spawn to look more centered
+    proj.x = proj.x - proj.center_x --Moves projectile spawn to look more centered
+    proj.y = proj.y - proj.center_y --Moves projectile spawn to look more centered
     proj.speed = speed or .3
     proj.dest_x = dest_x
     proj.dest_y = dest_y
@@ -41,11 +41,11 @@ function CreateProj(source,name, size, x, y, id, speed, dest_x, dest_y, angle, c
         proj.y = proj.y + (proj.speed * sin(proj.angle) * dt)
 
         --Cull Projectiles for both dimensions if they pass the screen borders
-        if(proj.x > globals.max_bound) or (proj.x + proj.border_offset_width < globals.min_bound) then
+        if(proj.x > globals.win_width) or (proj.x + proj.width < 0) then
             proj.delete()
         end
 
-        if(proj.y > globals.max_bound) or (proj.y + proj.border_offset_height < globals.min_bound) then
+        if(proj.y > globals.win_height) or (proj.y + proj.height < 0) then
             proj.delete()
         end
     end
@@ -54,8 +54,8 @@ function CreateProj(source,name, size, x, y, id, speed, dest_x, dest_y, angle, c
         love.graphics.setColor(color or globals.colors.cyan)
         love.graphics.draw(
             proj.text,
-            proj.x * globals.win_width,
-            proj.y * globals.win_height
+            proj.x ,
+            proj.y
         )
         love.graphics.setColor(globals.colors.default)
     end

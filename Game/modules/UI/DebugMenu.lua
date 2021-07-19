@@ -10,8 +10,8 @@ end
 
 local function update_debug_string()
     local debug_string = 
-    'Position: (X: '..string.format('%.4f',globals.Player.x * globals.win_width)..
-    ' Y: '.. string.format('%.4f',globals.Player.y * globals.win_height)..')'..
+    'Position: (X: '..string.format('%.4f',globals.Player.x)..
+    ' Y: '.. string.format('%.4f',globals.Player.y)..')'..
     '\nMouse Position: ('..string.format('%.4f',debug_globals.mouse_x_pos)..', '.. string.format('%.4f',debug_globals.mouse_y_pos)..')'..
     '\nVSync: ' .. VSyncStatus()..
     '\ndT: '..string.format('%.4f',debug_globals.current_dt)..

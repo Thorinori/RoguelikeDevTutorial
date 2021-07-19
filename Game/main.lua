@@ -3,6 +3,8 @@ require('libs.json')
 require('modules.General.DataStructures')
 require('modules.General.TableFunctions')
 require('modules.General.Colors')
+require('modules.General.CollisionCategories')
+require('modules.General.CollisionManager')
 require('modules.General.Constants')
 require('modules.Entities.Player')
 require('modules.World.Rooms.TestRoom')
@@ -22,8 +24,6 @@ function love.load()
     globals = {
         win_width = love.graphics.getWidth(),
         win_height = love.graphics.getHeight(),
-        max_bound = 1,
-        min_bound = 0,
         game_state = 'play',
         default_chars = {
             player = 'x',
@@ -37,13 +37,15 @@ function love.load()
         },
         next_id = 2,
         colors = Colors(),
+        collision_categories = CollisionCategories(),
         fire_rate = 10,
         default_fonts = {
             love_default = '/res/fonts/Vera.ttf',
             player = '/res/fonts/origa___.ttf',
         },
         cursor = '/res/cursor.png',
-        load_info = {}
+        load_info = {},
+        world = love.physics.newWorld(0,0,true)
     }
 
     love.graphics.setBackgroundColor(globals.colors.black)
@@ -68,14 +70,15 @@ function love.load()
     globals.load_info.load_text = love.graphics.newText(globals.load_info.load_font, "LOADING")
 
 
+    globals.world:setCallbacks(beginContact,endContact,preSolve,postSolve)
 
 
     --Generate Player once ready
     globals.Player = CreatePlayer(
         'x',
         42,
-        love.math.random(),
-        love.math.random(),
+        globals.win_width/2,
+        globals.win_height/2,
         1,
         nil,
         globals.default_fonts.player
@@ -90,6 +93,8 @@ function love.update(dt)
     --Only update when window is focused and game is in play mode
     if(love.window.hasFocus() and globals.game_state ~= 'paused') then
         
+        globals.world:update(dt)
+
         --Do updates for all permanent objects
         for _,i in pairs(globals.perm_objects) do
             i.update(dt)

@@ -20,7 +20,7 @@ function Grid(width, height, visible)
         }
 
         for i = 0, width do
-            local x = (NormalizeToWindowWidth(grid.data.current_win_width)/grid.data.width) * globals.win_width * i
+            local x = (grid.data.current_win_width)/grid.data.width  * i
             tInsert(
                 grid.data,
                 {
@@ -33,7 +33,7 @@ function Grid(width, height, visible)
         end
 
         for i = 0, height do
-            local y = (NormalizeToWindowHeight(grid.data.current_win_height)/grid.data.height) * globals.win_height * i
+            local y = (grid.data.current_win_height)/grid.data.height * i
             tInsert(
                 grid.data,
                 {

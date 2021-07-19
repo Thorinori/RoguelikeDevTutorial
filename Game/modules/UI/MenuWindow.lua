@@ -2,8 +2,8 @@ function CreateWindow(name, mode, x, y, width, height, id)
     local Window = {
         name = name or 'Generic Window',
         mode = mode or 'fill',
-        x_offset = NormalizeToWindowWidth(x),
-        y_offset = NormalizeToWindowHeight(y),
+        x_offset = x,
+        y_offset = y,
         width = width,
         height = height,
         id = id
